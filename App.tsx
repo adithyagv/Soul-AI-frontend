@@ -5,6 +5,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { PaperProvider } from "react-native-paper";
 import { ThemeProvider, useTheme } from "./src/context/ThemeContext";
+import { AuthProvider } from "./src/context/AuthContext";
 import { ChatProvider } from "./src/context/ChatContext";
 import { AppNavigator } from "./src/navigation/AppNavigator";
 import { lightTheme, darkTheme } from "./src/theme/theme";
@@ -15,17 +16,19 @@ const ThemedApp: React.FC = () => {
 
   return (
     <PaperProvider theme={theme}>
-      <ChatProvider>
-        <AppNavigator />
-        <StatusBar style={isDarkMode ? "light" : "dark"} />
-      </ChatProvider>
+      <AuthProvider>
+        <ChatProvider>
+          <AppNavigator />
+          <StatusBar style={isDarkMode ? "light" : "dark"} />
+        </ChatProvider>
+      </AuthProvider>
     </PaperProvider>
   );
 };
 
 export default function App() {
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: "#121212" }}>
       <SafeAreaProvider>
         <ThemeProvider>
           <ThemedApp />

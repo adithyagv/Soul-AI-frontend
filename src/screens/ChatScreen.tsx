@@ -11,6 +11,7 @@ import { Text, ActivityIndicator, useTheme, Appbar } from "react-native-paper";
 import { useChat } from "../context/ChatContext";
 import { ChatBubble } from "../components/ChatBubble";
 import { ChatInput } from "../components/ChatInput";
+import { Logo } from "../components/Logo";
 import { Message } from "../api/solApi";
 import { DrawerNavigationProp } from "@react-navigation/drawer";
 
@@ -56,7 +57,7 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ navigation }) => {
 
   const EmptyState = () => (
     <View style={styles.emptyContainer}>
-      <Text style={[styles.emptyEmoji]}>🧠</Text>
+      <Logo size={80} />
       <Text style={[styles.emptyTitle, { color: theme.colors.onSurface }]}>
         Welcome to Soul AI
       </Text>
@@ -119,8 +120,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 32,
   },
-  emptyEmoji: {
-    fontSize: 64,
+  emptyLogo: {
     marginBottom: 16,
   },
   emptyTitle: {

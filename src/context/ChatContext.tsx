@@ -1,5 +1,12 @@
-import React, { createContext, useContext, useState, useCallback } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useEffect,
+} from "react";
 import { solApi, Session, Message, ChatResponse } from "../api/solApi";
+import { useAuth } from "./AuthContext";
 
 interface ChatContextType {
   sessions: Session[];
@@ -8,6 +15,7 @@ interface ChatContextType {
   isLoading: boolean;
   loadSessions: () => Promise<void>;
   selectSession: (session: Session) => Promise<void>;
+  selectSessionById: (sessionId: string) => Promise<void>;
   createNewChat: () => Promise<void>;
   sendMessage: (content: string) => Promise<void>;
   deleteSession: (sessionId: string) => Promise<void>;
@@ -24,10 +32,30 @@ export const useChat = () => {
 export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const [sessions, setSessions] = useState<Session[]>([]);
   const [currentSession, setCurrentSession] = useState<Session | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Set userId in API when auth state changes and reload sessions
+  // IMPORTANT: Wait for auth to finish loading before setting user ID
+  useEffect(() => {
+    // Don't do anything while auth is still loading
+    if (authLoading) return;
+
+    if (user?.uid) {
+      solApi.setUserId(user.uid);
+      // Load sessions for the new user
+      solApi.getSessions().then(setSessions).catch(console.error);
+    } else {
+      solApi.setUserId("default_user");
+      // Clear data on logout
+      setSessions([]);
+      setCurrentSession(null);
+      setMessages([]);
+    }
+  }, [user, authLoading]);
 
   const loadSessions = useCallback(async () => {
     try {
@@ -48,6 +76,38 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
       setMessages([]);
     }
   }, []);
+
+  // Select session by ID - used for notification deep linking
+  const selectSessionById = useCallback(
+    async (sessionId: string) => {
+      try {
+        // First, try to find the session in our existing sessions list
+        const existingSession = sessions.find((s) => s.id === sessionId);
+
+        if (existingSession) {
+          await selectSession(existingSession);
+        } else {
+          // Session not in list, load messages directly and create minimal session object
+          const msgs = await solApi.getSessionMessages(sessionId);
+          setMessages(msgs);
+          setCurrentSession({
+            id: sessionId,
+            user_id: "",
+            title: "Chat",
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            message_count: msgs.length,
+            dominant_emotion: null,
+          });
+          // Also reload sessions to include this one
+          loadSessions();
+        }
+      } catch (error) {
+        console.error("Failed to select session by ID:", error);
+      }
+    },
+    [sessions, selectSession, loadSessions]
+  );
 
   const createNewChat = useCallback(async () => {
     // Don't create session yet - let the first message create it with proper title
@@ -75,9 +135,9 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
       };
 
       try {
-        // Create a session first if none exists
+        // Create a session first if none exists - BUT ONLY FOR AUTHENTICATED USERS
         let sessionId = currentSession?.id;
-        if (!sessionId) {
+        if (!sessionId && isAuthenticated) {
           try {
             const newSession = await solApi.createSession(createTitle(content));
             setCurrentSession(newSession);
@@ -161,6 +221,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
         isLoading,
         loadSessions,
         selectSession,
+        selectSessionById,
         createNewChat,
         sendMessage,
         deleteSession,

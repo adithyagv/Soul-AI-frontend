@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "342596422288",
+    "project_id": "soul-ai-60893",
+    "storage_bucket": "soul-ai-60893.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:342596422288:android:4f2a3822a44c83eee7e615",
+        "android_client_info": {
+          "package_name": "com.anonymous.soulai"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "342596422288-p5mceqphfveec9tegt6kdmdendsv97dr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAtqhHpsrj46B3N_O26HxcU-VWvPmr9z70"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "342596422288-p5mceqphfveec9tegt6kdmdendsv97dr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

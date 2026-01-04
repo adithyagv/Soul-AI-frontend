@@ -53,9 +53,14 @@ export interface AnalyticsData {
 
 class SolApi {
   private baseUrl: string;
+  private userId: string = "default_user";
 
   constructor() {
     this.baseUrl = API_BASE_URL;
+  }
+
+  setUserId(userId: string) {
+    this.userId = userId;
   }
 
   async healthCheck(): Promise<{ status: string; model_loaded: boolean }> {
@@ -73,7 +78,7 @@ class SolApi {
       body: JSON.stringify({
         message,
         session_id: sessionId,
-        user_id: "default_user",
+        user_id: this.userId,
       }),
     });
     if (!response.ok) throw new Error("Failed to send message");
@@ -82,7 +87,7 @@ class SolApi {
 
   async getSessions(): Promise<Session[]> {
     const response = await fetch(
-      `${this.baseUrl}/api/sessions?user_id=default_user`
+      `${this.baseUrl}/api/sessions?user_id=${this.userId}`
     );
     if (!response.ok) return [];
     return response.json();
@@ -93,7 +98,7 @@ class SolApi {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        user_id: "default_user",
+        user_id: this.userId,
         title: title || "New Chat",
       }),
     });
@@ -115,7 +120,9 @@ class SolApi {
   }
 
   async getAnalytics(): Promise<AnalyticsData> {
-    const response = await fetch(`${this.baseUrl}/api/analytics/default_user`);
+    const response = await fetch(
+      `${this.baseUrl}/api/analytics/${this.userId}`
+    );
     if (!response.ok) {
       return {
         total_messages: 0,

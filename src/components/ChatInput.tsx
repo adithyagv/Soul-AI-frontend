@@ -35,6 +35,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSend, disabled }) => {
         onChangeText={setText}
         onSubmitEditing={handleSend}
         style={styles.input}
+        outlineStyle={{ borderRadius: 20 }}
         disabled={disabled}
         dense
       />
@@ -53,9 +54,9 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     alignItems: "center",
+    borderRadius: 20,
     paddingHorizontal: 8,
     paddingVertical: 8,
-    borderTopWidth: 1,
   },
   input: {
     flex: 1,
